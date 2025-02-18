@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from 'react'
+import axios from 'axios';
 import {
     Dialog,
     DialogContent,
@@ -12,19 +13,22 @@ import {
   } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useMutation } from 'convex/react'
+import { useAction, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Loader2Icon } from 'lucide-react'
 import uuid4 from 'uuid4'
 import { useUser } from '@clerk/nextjs'
 
+
 function UploadPdfDialog({ children }) {
   const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
   const addFileEntry = useMutation(api.fileStorage.AddFileEntryToDb);
   const getFileUrl = useMutation(api.fileStorage.getFileUrl);
+  const embeddDocument=useAction(api.myaction.ingest)
   const [file, setFile] = useState();
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState();
+  const [open,setOpen] = useState(false);
   const { user } = useUser();
 
   const OnFileSelect = (event) => {
@@ -57,17 +61,31 @@ function UploadPdfDialog({ children }) {
         fileUrl: fileUrl, // Ensure this is populated
         createdBy: user?.primaryEmailAddress?.emailAddress,
       });
-      console.log("response :", resp);
+      // console.log("response :", resp);
+
+      //API call to fetch PDF Process Data
+      const ApiResult = await axios.get('/api/pdf-loader?pdfUrl='+fileUrl);
+      console.log(ApiResult.data.result);
+      await embeddDocument({
+        splitText:ApiResult.data.result,
+        fileId:fileId
+      });
+      // console.log(embedResult);
+      setLoading(false);
+
     } catch (error) {
       console.error("Error uploading file:", error);
     } finally {
       setLoading(false);
+      setOpen(false);
     }
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open = {open}>
+      <DialogTrigger asChild>
+        <Button onClick={()=>setOpen(true)} className='w-full'>+ Upload PDF File </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload PDF File</DialogTitle>
@@ -90,7 +108,7 @@ function UploadPdfDialog({ children }) {
               Close
             </Button>
           </DialogClose>
-          <Button onClick={OnUpload}>
+          <Button onClick={OnUpload} disabled = {loading}>
             {loading ? <Loader2Icon className="animate-spin" /> : "Upload"}
           </Button>
         </DialogFooter>
