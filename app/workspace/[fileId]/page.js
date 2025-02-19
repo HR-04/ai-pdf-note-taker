@@ -2,11 +2,11 @@
 
 import { useParams } from 'next/navigation';
 import React, { useEffect } from 'react'
-import WorkspaceHeader from './_components/WorkspaceHeader';
-import PdfViewer from './_components/PdfViewer';
+import WorkspaceHeader from '../_components/WorkspaceHeader';
+import PdfViewer from '../_components/PdfViewer';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import TextEditor from './_components/TextEditor';
+import TextEditor from '../_components/TextEditor';
 
 function Workspace() {
     const {fileId} = useParams();

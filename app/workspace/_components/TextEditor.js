@@ -40,19 +40,6 @@ const editor = useEditor({
     },
 });
 
-useEffect(() => {
-    if (editor) {
-      // Insert a bullet list for testing
-    editor.commands.insertContent(`
-        <ul>
-        <li>Item 1</li>
-        <li>Item 2</li>
-        <li>Item 3</li>
-        </ul>
-    `);
-    }
-}, [editor]);
-
 if (!editor) {
     return null; // Return null or a loading state if editor is not initialized
 }
@@ -60,7 +47,7 @@ if (!editor) {
 return (
     <div>
     <EditorExtensions editor={editor} />
-    <div>
+    <div className='overflow-scroll h-[88vh]'>
         <EditorContent editor={editor} />
     </div>
     </div>

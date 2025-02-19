@@ -1,3 +1,6 @@
+import { chatSession } from '@/configs/AImodels';
+import { api } from '@/convex/_generated/api';
+import { useAction } from 'convex/react';
 import {
     Bold,
     CodeIcon,
@@ -15,21 +18,40 @@ import {
     AlignJustify,
     Sparkles,
 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import React from 'react';
 
-function EditorExtensions({ editor }) {
-    if (!editor) {
-      return null; // Return null or a loading state if editor is not initialized
-    }
-    const onAiClick=()=>{
+function EditorExtensions({ editor}) {
+    const {fileId} =useParams();
+    const SearchAI = useAction(api.myaction.search)
+    const onAiClick=async()=>{
         const selectedText=editor.state.doc.textBetween(
             editor.state.selection.from,
             editor.state.selection.to,
             ' '
         )
-        console.log(selectedText)
+        console.log(selectedText);
 
-    }
+        const result =await SearchAI({
+            query:selectedText,
+            fileId:fileId
+        })
+        const UnformattedAns = JSON.parse(result);
+        let AllUnformattedAns = '';
+        UnformattedAns&&UnformattedAns.forEach(item=> {
+            AllUnformattedAns=AllUnformattedAns+item.pageContent;
+        });
+
+        const PROMPT = "For Question :" +selectedText+" and with the given content as answer,"+
+        "please give appropriate answer in HTML Format. The answer content is : "+AllUnformattedAns;
+
+        const AiModelResult = await chatSession.sendMessage(PROMPT);
+        console.log(AiModelResult.response.text());
+        const FinalAns = AiModelResult.response.text().replace('```','').replace('html','').replace('```','');
+        const AllText = editor.getHTML();
+        editor.commands.setContent(AllText+'<p><strong>Answer: </strong>'+FinalAns+'</p>')
+
+    }   
 
     return (
     <div className="p-5">
