@@ -9,8 +9,16 @@ import BulletList from '@tiptap/extension-bullet-list';
 import TextAlign from '@tiptap/extension-text-align';
 import React, { useEffect } from 'react';
 import EditorExtensions from './EditorExtensions';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api'
 
-function TextEditor() {
+
+function TextEditor({fileId}) {
+
+    const notes=useQuery(api.notes.GetNotes,{
+        fileId:fileId
+    })
+    console.log(notes);
 const editor = useEditor({
     extensions: [
     StarterKit,
@@ -39,6 +47,10 @@ const editor = useEditor({
     },
     },
 });
+
+useEffect(()=>{
+    editor&&editor.commands.setContent(notes)
+},[notes&&editor])
 
 if (!editor) {
     return null; // Return null or a loading state if editor is not initialized

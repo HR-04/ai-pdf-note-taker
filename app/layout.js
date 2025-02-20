@@ -3,6 +3,7 @@ import "./globals.css";
 import Provider from "./provider"
 const outfit = Outfit({subsets:['latin']})
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata = {
   title: "Create Next App",
@@ -19,7 +20,7 @@ export default function RootLayout({ children }) {
         <Provider>
         {children}
         </Provider>
-
+        <Toaster/>
       </body>
     </html>
     </ClerkProvider>
