@@ -29,8 +29,7 @@ export default function Home() {
 
   return (
     <div>
-      <h2>Harini</h2>
-      <Button>Developer</Button>
+      <h2>Hello </h2>
       <UserButton />
     </div>
   );
